@@ -5,7 +5,14 @@ import uuid from "uuid/v1";
 const thoughtReducer = (state, action) => {
   switch (action.type) {
     case "add_thought":
-      return [...state, { title: `Thought #${state.length + 1}`, id: uuid() }];
+      return [
+        ...state,
+        {
+          title: action.payload.title,
+          content: action.payload.content,
+          id: uuid()
+        }
+      ];
     case "delete_thought":
       return state.filter(though => though.id !== action.payload);
     default:
@@ -13,7 +20,8 @@ const thoughtReducer = (state, action) => {
   }
 };
 const addThougt = dispatch => {
-  return () => dispatch({ type: ADD_THOUGHT });
+  return (title, content) =>
+    dispatch({ type: ADD_THOUGHT, payload: { title, content } });
 };
 const deleteThought = dispatch => {
   return id => dispatch({ type: DELETE_THOUGHT, payload: id });
