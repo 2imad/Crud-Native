@@ -1,9 +1,12 @@
 import React, { useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Context } from "../context/ToughtsContext";
+import { EvilIcons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
+let thoughtId;
 const ShowScreen = ({ navigation }) => {
-  const thoughtId = navigation.getParam("id");
+  thoughtId = navigation.getParam("id");
   const { state } = useContext(Context);
 
   const thought = state.find(t => t.id === thoughtId);
@@ -13,6 +16,17 @@ const ShowScreen = ({ navigation }) => {
       <Text> {thought.content} </Text>
     </View>
   );
+};
+ShowScreen.navigationOptions = ({ navigation }) => {
+  return {
+    headerRight: (
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Edit", { id: thoughtId })}
+      >
+        <EvilIcons name="pencil" size={35} />
+      </TouchableOpacity>
+    )
+  };
 };
 
 const styles = StyleSheet.create({});

@@ -1,12 +1,21 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { View, Text, StyleSheet, Button, FlatList } from "react-native";
 import { Context } from "../context/ToughtsContext";
 import { Feather } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 const IndexScreen = ({ navigation }) => {
-  const { state, addThougt, deleteThought } = useContext(Context);
+  const { state, deleteThought, getThoughts } = useContext(Context);
   const { row, title, icon } = styles;
+
+  useEffect(() => {
+    getThoughts();
+    const listener = navigation.addListener("didFocus", () => getThoughts());
+    return () => {
+      listener.remove();
+    };
+  }, []);
+
   return (
     <View>
       <FlatList

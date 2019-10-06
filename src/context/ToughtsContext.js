@@ -1,34 +1,51 @@
 import createDataContext from "./createDataContext";
-import { ADD_THOUGHT, DELETE_THOUGHT } from "./actions";
-import uuid from "uuid/v1";
+import jsonServer from "../api/jsonServer";
+import { DELETE_THOUGHT, EDIT_THOUGHT, GET_THOUGHTS } from "./actions";
 
 const thoughtReducer = (state, action) => {
   switch (action.type) {
-    case "add_thought":
-      return [
-        ...state,
-        {
-          title: action.payload.title,
-          content: action.payload.content,
-          id: uuid()
-        }
-      ];
-    case "delete_thought":
+    case GET_THOUGHTS:
+      return action.payload;
+    case EDIT_THOUGHT:
+      return state.map(thought => {
+        return thought.id === action.payload.id ? action.payload : though;
+      });
+    case DELETE_THOUGHT:
       return state.filter(though => though.id !== action.payload);
     default:
       return state;
   }
 };
-const addThougt = dispatch => {
-  return (title, content) =>
-    dispatch({ type: ADD_THOUGHT, payload: { title, content } });
+
+const getThoughts = dispatch => {
+  return async () => {
+    const res = await jsonServer.get("/thoughts");
+    dispatch({ type: GET_THOUGHTS, payload: res.data });
+  };
+};
+const addThougt = () => {
+  return async (title, content, callback) => {
+    await jsonServer.post("/thoughts", { title, content });
+    callback ? callback() : null;
+  };
 };
 const deleteThought = dispatch => {
-  return id => dispatch({ type: DELETE_THOUGHT, payload: id });
+  return async id => {
+    await jsonServer.delete(`/thoughts/${id}`);
+    dispatch({ type: DELETE_THOUGHT, payload: id });
+  };
+};
+
+const editThought = dispatch => {
+  return async (id, title, content, callback) => {
+    await jsonServer.put(`/thoughts/${id}`, { title, content });
+    dispatch({ type: EDIT_THOUGHT, payload: { id, title, content } });
+    callback ? callback() : null;
+  };
 };
 
 export const { Context, Provider } = createDataContext(
   thoughtReducer,
-  { addThougt, deleteThought },
+  { addThougt, deleteThought, editThought, getThoughts },
   []
 );
